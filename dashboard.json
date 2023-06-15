@@ -1,0 +1,66 @@
+{
+  "datasource": "-- Grafana --",
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": "",
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "gdev-testdata" },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "title": "Poor use of space",
+      "type": "grafana-polystat-panel"
+    },
+    {
+      "datasource": { "type": "gdev-testdata" },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 5,
+      "title": "Composite crash",
+      "type": "grafana-polystat-panel"
+    }
+  ],
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": ["panel-test", "gdev", "polystat"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"],
+    "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+  },
+  "timezone": "",
+  "title": "Panel Tests - Polystat",
+  "uid": "Kp9Z0hTik",
+  "version": 5
+}

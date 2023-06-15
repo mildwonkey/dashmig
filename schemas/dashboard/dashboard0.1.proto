@@ -1,0 +1,435 @@
+syntax = "proto3";
+
+option go_package = "github.com/mildwonkey/dashmig/internal/kinds/dashboard";
+
+package schema0;
+
+import "validate/validate.proto";
+
+// this may be over engineered; I'm trying to be as flexible as possible until I
+// have a better idea what's used and where
+message DynamicValue {
+  bytes msgpack = 1;
+  bytes json = 2;
+}
+
+message Dashboard {
+  message Templating {
+    repeated VariableModel list = 1;
+  }
+  optional int64 id = 1;
+  optional string uid = 2;
+  optional string title = 3;
+  optional string description = 4;
+  optional int64 revision = 5;
+  optional string gnetId = 6;
+  repeated string tags = 7;
+  optional string style = 8;
+  optional string timezone = 9;
+  bool editable = 10;
+  DashboardCursorSync graphTooltip = 11;
+  optional TimeRange time = 12;
+  optional TimePicker timepicker = 13;
+  optional uint32 fiscalYearStartMonth = 14;
+  optional bool liveNow = 15;
+  optional string weekStart = 16;
+  optional string refresh = 17;
+  optional uint32 schemaVersion = 18;
+  optional uint32 version = 19;
+  repeated PanelType panels = 20;
+  optional Templating templating = 21;
+  optional AnnotationContainer annotations = 22;
+  optional DashboardLink links = 23;
+  optional Snapshot snapshot = 24;
+}
+
+message DashboardCursorSync {
+  enum Value {
+    INVALID = 0;
+    Off = 1;
+    Crosshair = 2;
+    Tooltip = 3;
+  }
+  optional Value value = 1;
+}
+
+message TimeRange {
+  optional string from = 1;
+  optional string to = 2;
+}
+
+message TimePicker {
+  optional bool hidden = 1;
+  repeated string refresh_intervals = 2
+      [(validate.rules).repeated.items.string.pattern = "^[0-9]{0,2}(ms|s|m|h|d|w|M|y)$"];
+  optional bool collapse = 3;
+  optional bool enable = 4;
+  repeated string time_options = 5
+      [(validate.rules).repeated.items.string.pattern = "^[0-9]{0,2}(ms|s|m|h|d|w|M|y)$"];
+}
+
+message PanelType {
+  oneof selector {
+    Panel panel = 1;
+    RowPanel row_panel = 2;
+    GraphPanel graph_panel = 3;
+    HeatmapPanel heatmap_panel = 4;
+  }
+}
+
+message Panel {
+  string type = 1 [(validate.rules).string.min_len = 1];
+  optional uint32 id = 2;
+  optional string pluginVersion = 3;
+  repeated string tags = 4;
+  repeated Target targets = 5;
+  optional string title = 6;
+  optional string description = 7;
+  optional bool transparent = 8;
+  optional DataSourceRef datasource = 9;
+  optional GridPos gridPos = 10;
+  repeated DashboardLink links = 11;
+  optional string repeat = 12;
+  optional string repeatDirection = 13 [(validate.rules).string.in = "h,v"];
+  optional int64 repeatPanelId = 14;
+  optional int64 maxDataPoints = 15;
+  repeated DataTransformerConfig transformations = 16;
+  optional string interval = 17;
+  optional string timeFrom = 18;
+  optional string timeShift = 19;
+  optional LibraryPanelRef libraryPanel = 20;
+
+  // not sure about options!
+  // in cue: options: {...}
+  optional DynamicValue options = 21;
+  optional string fieldConfig = 22;
+}
+
+message AnnotationTarget {
+  int64 limit = 1;
+  bool matchAny = 2;
+  repeated string tags = 3;
+  string type = 4;
+}
+
+message AnnotationPanelFilter {
+  optional bool exclude = 1;
+  repeated uint32 ids = 2;
+}
+
+message AnnotationContainer {
+  message AnnotationQuery {
+    string name = 1;
+    DataSourceRef datasource = 2;
+    bool enable = 3;
+    optional bool hide = 4;
+    string iconColor = 5;
+    optional AnnotationPanelFilter filter = 6;
+    optional AnnotationTarget target = 7;
+    optional string type = 8;
+  }
+  repeated AnnotationQuery list = 1;
+}
+
+message VariableModel {
+  enum VariableType {
+    VariableType_INVALID = 0;
+    Query = 1;
+    Custom = 2;
+    Datasource = 3;
+    Constant = 4;
+    Interval = 5;
+  }
+  enum VariableHide {
+    VariableHide_INVALID = 0;
+    Label = 1;
+    Variable = 2;
+    Both = 3;
+    None = 4;
+  }
+  enum VariableRefresh {
+    VariableRefresh_INVALID = 0;
+    Never = 1;
+    OnTimeRangeChanged = 2;
+    OnDashboardLoad = 3;
+    OnTimeRangeChangedAndLoad = 4;
+  }
+  message VariableOption {
+    optional bool selected = 1;
+    /* note sure about convering this cue statement: text can be a string or
+       list text: string | [...string]
+    */
+    string text = 2;
+    string value = 3;
+  }
+  string id = 1;
+  VariableType type = 2;
+  string name = 3;
+  optional string label = 4;
+  VariableHide hide = 5;
+  bool skipUrlSync = 6;
+  optional string description = 7;
+  optional string query = 8;
+  optional DataSourceRef datasource = 9;
+  optional string allFormat = 10;
+  optional VariableOption current = 11;
+  optional bool multi = 12;
+  repeated VariableOption options = 13;
+  optional VariableRefresh refresh = 14;
+}
+
+message DataSourceRef {
+  optional string type = 1;
+  optional string uid = 2;
+}
+
+message DashboardLink {
+  enum DashboardLinkType {
+    INVALID = 0;
+    Link = 1;
+    Dashboards = 2;
+  }
+  string title = 1;
+  DashboardLinkType type = 2;
+  string icon = 3;
+  string tooltip = 4;
+  string url = 5;
+  repeated string tags = 6;
+  bool asDropdown = 7;
+  bool targetBlank = 8;
+  bool includeVars = 9;
+  bool keepTime = 10;
+}
+
+message FieldColor {
+  enum FieldColorModeId {
+    FieldColorModeId_INVALID = 0;
+    Thresholds = 1;
+    PaletteClassic = 2;
+    PaletteClassicByName = 3;
+    ContinuousGrYlRd = 4;
+    ContinuousRdYlGr = 5;
+    ContinuousBlYlRd = 6;
+  }
+  enum FieldColorSeriesByMode {
+    FieldColorSeriesByMode_INVALID = 0;
+    Name = 1;
+    Index = 2;
+  }
+
+  FieldColorModeId mode = 1;
+  optional string fixedColor = 2;
+  optional FieldColorSeriesByMode seriesBy = 3;
+}
+
+message GridPos {
+  uint32 h = 1 [(validate.rules).uint32.gt = 0];
+  uint32 w = 2
+      [(validate.rules).uint32.gt = 0, (validate.rules).uint32.lte = 24];
+  uint32 x = 3
+      [(validate.rules).uint32.gte = 0, (validate.rules).uint32.lt = 24];
+  uint32 y = 4;
+  optional bool static = 5;
+}
+
+message Threshold {
+  float value = 1;
+  string color = 2;
+}
+
+message ThresholdsConfig {
+  enum ThresholdsMode {
+    INVALID = 0;
+    Absolute = 1;
+    Percentage = 2;
+  }
+  ThresholdsMode mode = 1;
+  repeated Threshold steps = 2;
+}
+
+message ValueMapping {
+  oneof selector {
+    ValueMap valueMap = 1;
+    RangeMap rangeMap = 2;
+    RegexMap regexMap = 3;
+    SpecialValueMap specialValueMap = 4;
+  }
+}
+
+enum MappingType {
+    MappingType_INVALID = 0;
+  Value = 1;
+  Range = 2;
+  Regex = 3;
+  Special = 4;
+}
+
+message ValueMap {
+  MappingType type = 1;
+  map<string, ValueMappingResult> options = 2;
+}
+
+message RangeMap {
+  message Options {
+    double from = 1;
+    double to = 2;
+    ValueMappingResult result = 3;
+  }
+  // note sure what to do with this:
+  // type: #MappingType & "regex"
+  MappingType type = 1;
+  Options options = 2;
+}
+
+message RegexMap {
+  message Options {
+    string pattern = 1;
+    ValueMappingResult result = 2;
+  }
+  MappingType type = 1;
+  Options options = 2;
+}
+
+message SpecialValueMap {
+  enum SpecialValueMatch {
+    SpecialValueMatch_INVALID = 0;
+    True = 1;
+    False = 2;
+    Null = 3;
+    NaN = 4;
+    NullAndNan = 5;
+    Empty = 6;
+  }
+  message Options {
+    SpecialValueMatch match = 1;
+    ValueMappingResult result = 2;
+  }
+  MappingType type = 1;
+  Options options = 2;
+}
+
+message ValueMappingResult {
+  optional string text = 1;
+  optional string color = 2;
+  optional string icon = 3;
+  optional int32 index = 4;
+}
+
+message DataTransformerConfig {
+  string id = 1;
+  optional bool disabled = 2;
+  optional MatcherConfig filter = 3;
+  /* not sure about options, so starting with "vague blob"
+    // Options to be passed to the transformer
+    // Valid options depend on the transformer id
+    options: _
+  */
+  DynamicValue options = 4;
+}
+
+/* not sure about this one either
+    // Schema for panel targets is specified by datasource
+    // plugins. We use a placeholder definition, which the Go
+    // schema loader either left open/as-is with the Base
+    // variant of the Dashboard and Panel families, or filled
+    // with types derived from plugins in the Instance variant.
+    // When working directly from CUE, importers can extend this
+    // type directly to achieve the same effect.
+    #Target: {...}
+*/
+message Target {
+  DynamicValue expr = 1;
+}
+
+message Snapshot {
+  string created = 1;
+  string expires = 2;
+  bool external = 3;
+  string externalUrl = 4;
+  uint32 id = 5;
+  string key = 6;
+  string name = 7;
+  uint32 orgId = 8;
+  string updated = 9;
+  optional string url = 10;
+  uint32 userId = 11;
+}
+
+message FieldConfigSource {
+  message FieldConfigOverrides {
+    MatcherConfig matcher = 1;
+    repeated DynamicConfigValue properties = 2;
+  }
+  FieldConfig defaults = 1;
+  repeated FieldConfigOverrides overrides = 2;
+}
+
+message LibraryPanelRef {
+  string name = 1;
+  string uid = 2;
+}
+
+message MatcherConfig {
+  string id = 1;
+  /* another unclear (to me) blob:
+              // The matcher options. This is specific to the matcher
+     implementation. options?: _ @grafanamaturity(NeedsExpertReview)
+  */
+  repeated DynamicValue options = 2;
+}
+
+message DynamicConfigValue {
+  string id = 1;
+  optional DynamicValue value = 2;
+}
+
+message FieldConfig {
+  optional string displayName = 1;
+  optional string displayNameFromDS = 2;
+  optional string description = 3;
+  optional string path = 4;
+  optional bool writable = 5;
+  optional bool filterable = 6;
+  optional string unit = 7;
+  optional int32 decimals = 8;  // "number" type
+  optional int32 min = 9;       // "number" type
+  optional int32 max = 10;      // "number" type
+  repeated ValueMapping mappings = 11;
+  optional ThresholdsConfig thresholds = 12;
+  optional FieldColor color = 13;
+  repeated DynamicValue links = 14;
+  optional string noValue = 15;
+
+  /*
+    // custom is specified by the FieldConfig field in panel plugin schemas.
+    custom?: {...} @grafanamaturity(NeedsExpertReview)
+  */
+  optional DynamicValue custom = 16;
+}
+
+message RowPanel {
+  string type = 1;  // this is hard coded to "row" in cue - should it be
+                    // PanelType? Or omitted? (implied by the message name)
+  bool collapsed = 2;
+  optional string title = 3;
+  optional DataSourceRef datasource = 4;
+  optional GridPos gridPos = 5;
+  uint32 id = 6;
+  repeated Panel panels = 7;
+  optional string repeat = 8;
+}
+
+message GraphPanel {
+  message Legend {
+    bool show = 1;
+    optional string sort = 2;
+    optional bool sortDesc = 3;
+  }
+  string type = 1;  // this is hard coded to "graph" in cue
+  optional Legend legend = 2;
+}
+
+message HeatmapPanel {
+  option deprecated = true;
+  string type = 1;  // this is hard coded to "heatmap" in cue
+}
