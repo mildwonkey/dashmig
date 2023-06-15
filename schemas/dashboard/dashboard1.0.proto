@@ -120,13 +120,16 @@ message AnnotationPanelFilter {
 message AnnotationContainer {
   message AnnotationQuery {
     string name = 1;
-    string datasource = 2;
+    DataSourceRef datasource = 2;
     bool enable = 3;
     optional bool hide = 4;
     string iconColor = 5;
     optional AnnotationPanelFilter filter = 6;
     optional AnnotationTarget target = 7;
     optional string type = 8;
+
+    // unrealistically modeling an actual change
+    string datasource_str = 9;
   }
   repeated AnnotationQuery list = 1;
 }
