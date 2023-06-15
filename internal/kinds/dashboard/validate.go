@@ -15,3 +15,13 @@ func ValidateDashJSON(dash *simplejson.Json) (*Dashboard, error) {
 	json.Unmarshal(dashBytes, &d)
 	return &d, d.Validate()
 }
+
+func ValidateDash(dash *Dashboard) (*Dashboard, error) {
+	return dash, dash.Validate()
+}
+
+func ValidateBytesDash(dash []byte) (*Dashboard, error) {
+	d := Dashboard{}
+	json.Unmarshal(dash, &d)
+	return &d, d.Validate()
+}

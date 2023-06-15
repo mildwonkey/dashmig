@@ -5692,34 +5692,7 @@ func (m *AnnotationContainer_AnnotationQuery) validate(all bool) error {
 
 	// no validation rules for Name
 
-	if all {
-		switch v := interface{}(m.GetDatasource()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AnnotationContainer_AnnotationQueryValidationError{
-					field:  "Datasource",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AnnotationContainer_AnnotationQueryValidationError{
-					field:  "Datasource",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetDatasource()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AnnotationContainer_AnnotationQueryValidationError{
-				field:  "Datasource",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for Datasource
 
 	// no validation rules for Enable
 

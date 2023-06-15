@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "github.com/mildwonkey/dashmig/internal/kinds/dashboard";
 
-package schema0;
+package dashboard0;
 
 import "validate/validate.proto";
 

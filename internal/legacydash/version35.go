@@ -1,14 +1,14 @@
 package legacydash
 
 import (
-	"github.com/bitly/go-simplejson"
+	"encoding/json"
+
 	"github.com/mildwonkey/dashmig/internal/kinds/dashboard"
+	legdash "github.com/mildwonkey/dashmig/internal/legacydash/dashboard" //trolololol
 )
 
 func ReadDashv35(src []byte) (*dashboard.Dashboard, error) {
-	orig, err := simplejson.NewJson(src)
-	if err != nil {
-		return nil, err
-	}
+	orig := &legdash.Dashboard{}
+	json.Unmarshal(src, orig)
 	return migrateDashv36(orig)
 }
